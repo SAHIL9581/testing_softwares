@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: fastapi-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: vite-frontend
+    ports:
+      - "5173:80" # Access React via http://localhost:5173
+    depends_on:
+      - backend
+    restart: always
