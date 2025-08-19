@@ -122,3 +122,4 @@ export default function Login() {
 ---
 
 
+docker-compose down -v && docker-compose up --build

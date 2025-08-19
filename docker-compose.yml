@@ -1,16 +1,52 @@
-version: "3.9"
-
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: app-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h 127.0.0.1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - app-net
+
   backend:
-    build: ./backend
-    container_name: fastapi-backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: app-backend
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app
+    restart: unless-stopped
+    networks:
+      - app-net
+
+  adminer:
+    image: adminer:4
+    container_name: app-adminer
     environment:
-      - PYTHONUNBUFFERED=1
-    restart: always
+      # This makes the default server pre-filled as 'db'
+      ADMINER_DEFAULT_SERVER: ${ADMINER_DEFAULT_SERVER}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - app-net
 
   frontend:
     build: ./frontend
@@ -20,3 +56,10 @@ services:
     depends_on:
       - backend
     restart: always
+
+volumes:
+  db_data:
+
+networks:
+  app-net:
+    driver: bridge
