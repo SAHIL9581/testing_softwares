@@ -1,24 +1,17 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import './index.css'
-import Login from './Login.jsx'
-import Page404 from './Page404.jsx'
+// FILE: src/main.jsx
 
-import App from './APITest.jsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from "react-router-dom";
+import './index.css';
+
+// We will put all the <Routes> inside this App component
+import App from './App.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-    <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/api" element={<App />} />
-
-        <Route path="*" element={<Page404 />} />
-
-    </Routes>
-
-    
+      <App />
     </BrowserRouter>
   </StrictMode>,
-)
+);
